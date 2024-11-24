@@ -4,7 +4,7 @@ import { ModifyAppointmentDto } from "./modify.dto";
 
 @Controller("appointment")
 export class ModifyAppointmentController {
-  constructor(private readonly query: ModifyAppointmentCommand) {}
+  constructor(private readonly command: ModifyAppointmentCommand) {}
 
   /*
    * Use this API to modify an appointment by id
@@ -14,6 +14,6 @@ export class ModifyAppointmentController {
     @Body() dto: ModifyAppointmentDto,
     @Param("appointmentId", ParseIntPipe) appointmentId: number
   ) {
-    return this.query.run(dto, appointmentId);
+    return this.command.run(dto, appointmentId);
   }
 }
