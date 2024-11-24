@@ -27,4 +27,4 @@ $ yarn start:dev
 
 After starting the app you can go to these urls for testing the api's
 
-1.[Appointment Module](http://localhost:4000/appointments)
+1.[Appointment Module](http://localhost:4000/api-docs/appointments)
