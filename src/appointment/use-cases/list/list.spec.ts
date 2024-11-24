@@ -1,24 +1,24 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { GetAppointmentQuery } from "./get.query";
 import { Appointment } from "src/appointment/entities";
+import { ListAppointmentsByDoctorQuery } from "./list.query";
 
 jest.mock("typeorm-transactional", () => ({
   initializeTransactionalContext: jest.fn(),
   Transactional: () => () => ({}),
 }));
 
-describe("GetAppointmentQuery", () => {
-  let query: GetAppointmentQuery;
+describe("ListAppointmentsByDoctorQuery", () => {
+  let query: ListAppointmentsByDoctorQuery;
   const mockAppointmentRepository = {
-    findOneBy: jest.fn(),
+    findBy: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GetAppointmentQuery,
+        ListAppointmentsByDoctorQuery,
         {
           provide: getRepositoryToken(Appointment),
           useValue: mockAppointmentRepository,
@@ -26,14 +26,16 @@ describe("GetAppointmentQuery", () => {
       ],
     }).compile();
 
-    query = module.get<GetAppointmentQuery>(GetAppointmentQuery);
+    query = module.get<ListAppointmentsByDoctorQuery>(
+      ListAppointmentsByDoctorQuery
+    );
   });
 
   it("should be defined", () => {
     expect(query).toBeDefined();
   });
 
-  it("should find an existing appointment", async () => {
+  it("should find an list of appointments for doctor", async () => {
     const existingAppointment = {
       firstName: "John",
       lastName: "Smith",
@@ -50,24 +52,14 @@ describe("GetAppointmentQuery", () => {
       id: 1,
     };
 
-    mockAppointmentRepository.findOneBy.mockResolvedValue(existingAppointment);
+    mockAppointmentRepository.findBy.mockResolvedValue([existingAppointment]);
 
     const found = await query.run(existingAppointment.id);
 
-    expect(found).toEqual(existingAppointment);
+    expect(found).toEqual([existingAppointment]);
 
-    expect(mockAppointmentRepository.findOneBy).toHaveBeenCalledWith({
-      id: existingAppointment.id,
+    expect(mockAppointmentRepository.findBy).toHaveBeenCalledWith({
+      consultantDoctorId: existingAppointment.consultantDoctorId,
     });
-  });
-
-  it("should throw NotFoundException when appointment is not found", async () => {
-    const nonExistentId = 999;
-
-    mockAppointmentRepository.findOneBy.mockResolvedValue(null);
-
-    await expect(query.run(nonExistentId)).rejects.toThrowError(
-      NotFoundException
-    );
   });
 });
